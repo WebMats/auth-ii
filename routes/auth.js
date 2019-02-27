@@ -18,19 +18,7 @@ router.post('/register', async (req, res, next) => {
     }
     try {
         const department = req.body.department || 'tbd';
-        bcrypt.hash(password, 11).then(hash => {
-            userDB('users').insert({username, hash, department}).then(([id]) => {
-                const token = jwt.sign({userId: id, username}, process.env.JWT_SECRET, { expiresIn: '1hr'});
-                const authenticatedUser = {token, username, userId: id, tokenExpiration: 60}
-                res.status(201).json(authenticatedUser)
-            }).catch(err => {
-                console.log(err)
-                res.status(500).json({errorMessage: "Could not create user."})
-            })
-        }).catch(err => {
-            console.log(err);
-            res.status(500).json({errorMessage: "Could not create user."})
-        })
+        
     } catch (err) {
         console.log(err);
         res.status(500).json({errorMessage: "Could not create user."})
