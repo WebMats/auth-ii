@@ -66,7 +66,8 @@ router.post('/login', async (req, res, next) => {
 router.get('/users', (req, res, next) => {
     try {
         userDB('users').then(users => {
-            res.status(200).json(users)
+            const transformedUser = users.map(user => ({...user, hash: 'redacted'}))
+            res.status(200).json(transformedUser)
         }).catch(err => {
             console.log(err)
             res.status(500).json({errorMessage: "Could not fetch users."})
