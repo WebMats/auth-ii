@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const authGuard = require('../middleware/authentication');
 
 const userDB = require('../data/dbConfig');
 
@@ -12,7 +13,7 @@ router.post('/register', async (req, res, next) => {
         return res.status(404).json({errorMessage: "Please provide both username and password."})
     }
     const fetchedUser = await userDB('users').where({username}).first();
-    if (fetchedUser.username === username) {
+    if (fetchedUser && fetchedUser.username === username) {
         return res.status(404).json({errorMessage: "Username is taken"})
     }
     try {
@@ -63,9 +64,12 @@ router.post('/login', async (req, res, next) => {
         res.status(500).json({errorMessage: "Could not authenticate user."})
     }
 })
-router.get('/users', (req, res, next) => {
+router.get('/users', authGuard, (req, res, next) => {
+    if (!req.isAuth) {
+        return res.status(404).json({errorMessage: "Must be authenticated"})
+    }
     try {
-        userDB('users').then(users => {
+        userDB('users').where({department: req.department}).then(users => {
             const transformedUser = users.map(user => ({...user, hash: 'redacted'}))
             res.status(200).json(transformedUser)
         }).catch(err => {
