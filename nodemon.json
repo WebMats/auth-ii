@@ -1,0 +1,6 @@
+{
+    "env": {
+        "JWT_SECRET": "super duper secret"
+    },
+    "verbose": true
+}
