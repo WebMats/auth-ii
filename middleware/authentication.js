@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const userDB = require('../data/dbConfig');
 
 module.exports = (req, res, next) => {
-    console.log('hitting auth guard')
     const authHeader = req.get('Authorization');
     if (!authHeader) {
         req.isAuth = false;

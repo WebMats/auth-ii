@@ -16,12 +16,17 @@ const typeDefs = gql`
         username: String!
         password: String!
     }
+    input NewUserInput {
+        department: String
+        username: String!
+        password: String!
+    }
     type Query {
         login(userInput: UserInput): UserCredentials!
         users: [User]!
     }
     type Mutation {
-        signup(newUserInput: UserInput): UserCredentials!
+        signup(newUserInput: NewUserInput): UserCredentials!
     }
 `;
 
