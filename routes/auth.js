@@ -6,10 +6,14 @@ const router = express.Router();
 const userDB = require('../data/dbConfig');
 
 
-router.post('/register', (req, res, next) => {
+router.post('/register', async (req, res, next) => {
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(404).json({errorMessage: "Please provide both username and password."})
+    }
+    const fetchedUser = await userDB('users').where({username}).first();
+    if (fetchedUser.username === username) {
+        return res.status(404).json({errorMessage: "Username is taken"})
     }
     try {
         const department = req.body.department || 'tbd';
@@ -31,13 +35,29 @@ router.post('/register', (req, res, next) => {
         res.status(500).json({errorMessage: "Could not create user."})
     }
 })
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(404).json({errorMessage: "Please provide both username and password."})
     }
     try {
-        
+        const fetchedUser = await userDB('users').where({username}).first();
+        if (!fetchedUser) {
+            res.status(404).json({errorMessage: "Could not authenticate"})
+        } else {
+            bcrypt.compare(password, fetchedUser.hash).then(isMatch => {
+                if (!isMatch) {
+                    res.status(404).json({errorMessage: "Could not authenticate"})
+                } else {
+                    const token = jwt.sign({userId: fetchedUser.id, username}, process.env.JWT_SECRET, { expiresIn: '1hr'});
+                    const authenticatedUser = {token, username, userId: fetchedUser.id, tokenExpiration: 60}
+                    res.status(201).json(authenticatedUser)
+                }
+            }).catch((err) => {
+                console.log(err)
+                res.status(404).json({errorMessage: "Could not authenticate"})
+            });
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({errorMessage: "Could not authenticate user."})
