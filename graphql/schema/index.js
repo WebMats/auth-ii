@@ -22,11 +22,11 @@ const typeDefs = gql`
         password: String!
     }
     type Query {
-        login(userInput: UserInput): UserCredentials!
         users: [User]!
     }
     type Mutation {
         signup(newUserInput: NewUserInput): UserCredentials!
+        login(userInput: UserInput): UserCredentials!
     }
 `;
 

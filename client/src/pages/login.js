@@ -1,11 +1,17 @@
 import React from 'react'
+import LoginForm from '../containers/login-form';
 import { ApolloConsumer, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
 
 const LOGIN_USER = gql`
-  mutation Login($email: String!) {
-    login(email: $email)
+  mutation Login($username: String!, $password: String!) {
+    login(userInput: {username: $username, password: $password}) {
+        userId
+        token
+        username
+        tokenExpiration
+    }
   }
 `;
 
@@ -15,17 +21,16 @@ const login = (props) => (
         {(client) => (
             <Mutation 
                 mutation={LOGIN_USER}
-                onCompleted={(data) => {
-                    console.log(data)
-                    // localStorage.setItem('token', login);
-                    // client.writeData({ data: {isLoggedIn: true } })
+                onCompleted={({ login }) => {
+                    localStorage.setItem('token', login.token);
+                    client.writeData({ data: {isLoggedIn: true, userCredentials: {...login} } })
                 }}
             >
-                {({ data, loading, error }) => {
+                {(login, { loading, error }) => {
                     if (loading) return <p>Loading...</p>;
                     if (error) return <p>An error occurred</p>;
                     return (
-                        <h1>Login Form Page</h1>
+                        <LoginForm login={login} />
                     )
                 }}
             </Mutation>
