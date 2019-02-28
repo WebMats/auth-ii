@@ -10,7 +10,7 @@ const server = new ApolloServer({
         const authHeader = req.get('Authorization');
         if (!authHeader) return;
         const token = authHeader.split(' ')[1];
-        if (!token || token === '') return ;
+        if (!token || token === '' || token === 'null') return ;
         let decodedToken;
         try {
             decodedToken = jwt.verify(token, process.env.JWT_SECRET);

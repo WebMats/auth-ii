@@ -5,7 +5,7 @@ const typeDefs = gql`
         userId: ID!
         username: String!
         token: String!
-        tokenExpiration: String!
+        tokenExpiration: Int!
     }
     type User {
         id: ID!
